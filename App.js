@@ -1,8 +1,31 @@
+import { useState, useEffect } from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import { PickerItem } from './src/components/Picker'
-
+import { PickerItem } from './src/components/Picker';
+import { api } from './src/services/api'
 
 export default function App() {
+  const [currencies, setCurrencies] = useState([])
+
+  useEffect(() => {
+    async function loadCurrencies(){
+      const response = await api.get("all");
+      
+      let arrayCurrencies = [];
+      Object.keys(response.data).map((key) => {
+        arrayCurrencies.push({
+          key: key,
+          label: key,
+          value: key,
+        })
+      })
+
+      setCurrencies(arrayCurrencies);
+      
+    }
+
+    loadCurrencies();
+  }, [])
+
   return (
     <View style={styles.container}>
       <View style={styles.currencyArea}>
@@ -10,7 +33,9 @@ export default function App() {
         <PickerItem />
       </View>
     </View>
-  );
+
+
+);
 }
 
 const styles = StyleSheet.create({
