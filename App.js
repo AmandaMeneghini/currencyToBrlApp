@@ -13,8 +13,11 @@ import {api} from './src/services/api';
 export default function App() {
   const [currencies, setCurrencies] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [currencySelected, setCurrencySelected] = useState(null);
+  const [currencyBValue, setCurrencyBValue] = useState('');
+
+  const [currencyValue, setCurrencyValue] = useState(null);
+  const [valueConverted, setValueConverted] = useState(0);
 
   useEffect(() => {
     async function loadCurrencies() {
@@ -36,6 +39,22 @@ export default function App() {
 
     loadCurrencies();
   }, []);
+
+  async function conversor(){
+    if(currencyBValue === 0 || currencyBValue === ''|| currencySelected === null){
+      return;
+    }
+
+    const response = await api.get(`/all/${currencySelected}-BRL`)
+
+    let result = (Number(response.data[currencySelected]?.ask) * parseFloat(currencyBValue));
+
+    setValueConverted(`${result}`)
+    setCurrencyValue(currencyBValue)
+    
+    console.log(result);
+    
+  }
 
   if (loading) {
     return (
@@ -64,24 +83,26 @@ export default function App() {
           placeholder="Ex: 1.50"
           style={styles.input}
           keyboardType="numeric"
+          value={currencyBValue}
+          onChange={value => setCurrencyBValue(value)}
         />
       </View>
 
-      <TouchableOpacity style={styles.buttonArea}>
+      <TouchableOpacity style={styles.buttonArea} onPress={conversor}>
         <Text style={styles.buttonText}>Converter</Text>
       </TouchableOpacity>
 
-      <View style={styles.resultArea}>
-        <Text style={styles.resultText}>3 BTC</Text>
+      {valueConverted !== 0 && (
+        <View style={styles.resultArea}>
+          <Text style={styles.resultText}>
+            {currencyValue} {currencySelected}
+          </Text>
 
-        <Text style={styles.resultDescriptionText}>
-          corresponde a
-        </Text>
+          <Text style={styles.resultDescriptionText}>corresponde a</Text>
 
-        <Text style={styles.resultText}>
-          R$100.000,00
-        </Text>
-      </View>
+          <Text style={styles.resultText}>{valueConverted}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -138,7 +159,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFF',
     fontWeight: 'bold',
-    fontSize: 16
+    fontSize: 16,
   },
   resultArea: {
     width: '90%',
@@ -147,7 +168,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24
+    padding: 24,
   },
   resultText: {
     fontSize: 28,
@@ -159,5 +180,5 @@ const styles = StyleSheet.create({
     margin: 8,
     fontWeight: '500',
     color: '#000',
-  }
+  },
 });
