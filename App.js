@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   TextInput,
   TouchableOpacity,
+  Keyboard
 } from 'react-native';
 import {PickerItem} from './src/components/Picker';
 import {api} from './src/services/api';
@@ -13,8 +14,11 @@ import {api} from './src/services/api';
 export default function App() {
   const [currencies, setCurrencies] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [currencySelected, setCurrencySelected] = useState(null);
+  const [currencyBValue, setCurrencyBValue] = useState('');
+
+  const [currencyValue, setCurrencyValue] = useState(null);
+  const [valueConverted, setValueConverted] = useState(0);
 
   useEffect(() => {
     async function loadCurrencies() {
@@ -36,6 +40,20 @@ export default function App() {
 
     loadCurrencies();
   }, []);
+
+  async function conversor(){
+    if(currencyBValue === 0 || currencyBValue === ''|| currencySelected === null){
+      return;
+    }
+
+    const response = await api.get(`/all/${currencySelected}-BRL`)
+
+    let result = (Number(response.data[currencySelected]?.ask) * parseFloat(currencyBValue));
+
+    setValueConverted(`${result.toLocaleString("pt-BR", {style: "currency", currency: "BRL"})}`)
+    setCurrencyValue(currencyBValue)
+    Keyboard.dismiss();
+  }
 
   if (loading) {
     return (
@@ -64,13 +82,26 @@ export default function App() {
           placeholder="Ex: 1.50"
           style={styles.input}
           keyboardType="numeric"
+          value={currencyBValue}
+          onChangeText={(value) => setCurrencyBValue(value)}
         />
       </View>
 
-      <TouchableOpacity style={styles.buttonArea}>
+      <TouchableOpacity style={styles.buttonArea} onPress={conversor}>
         <Text style={styles.buttonText}>Converter</Text>
       </TouchableOpacity>
 
+      {valueConverted !== 0 && (
+        <View style={styles.resultArea}>
+          <Text style={styles.resultText}>
+            {currencyValue} {currencySelected}
+          </Text>
+
+          <Text style={styles.resultDescriptionText}>corresponde a</Text>
+
+          <Text style={styles.resultText}>{valueConverted}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -127,6 +158,26 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFF',
     fontWeight: 'bold',
-    fontSize: 16
-  }
+    fontSize: 16,
+  },
+  resultArea: {
+    width: '90%',
+    backgroundColor: '#FFF',
+    marginTop: 34,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  resultText: {
+    fontSize: 28,
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  resultDescriptionText: {
+    fontSize: 18,
+    margin: 8,
+    fontWeight: '500',
+    color: '#000',
+  },
 });
