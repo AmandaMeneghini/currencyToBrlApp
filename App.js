@@ -1,60 +1,78 @@
-import { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
-import { PickerItem } from './src/components/Picker';
-import { api } from './src/services/api'
+import {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
+import {PickerItem} from './src/components/Picker';
+import {api} from './src/services/api';
 
 export default function App() {
-  const [currencies, setCurrencies] = useState([])
+  const [currencies, setCurrencies] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [currencySelected, setCurrencySelected] = useState(null);
 
   useEffect(() => {
-    async function loadCurrencies(){
-      const response = await api.get("all");
-      
+    async function loadCurrencies() {
+      const response = await api.get('all');
+
       let arrayCurrencies = [];
-      Object.keys(response.data).map((key) => {
+      Object.keys(response.data).map(key => {
         arrayCurrencies.push({
           key: key,
           label: key,
           value: key,
-        })
-      })
+        });
+      });
 
       setCurrencies(arrayCurrencies);
       setCurrencySelected(arrayCurrencies[0].key);
       setLoading(false);
-      
     }
 
     loadCurrencies();
-  }, [])
+  }, []);
 
-  if(loading){
-    return(
+  if (loading) {
+    return (
       <View style={styles.loading}>
         <ActivityIndicator color="#FFF" size="large" />
       </View>
-    )
+    );
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.currencyArea}>
         <Text style={styles.title}>Selecione sua moeda</Text>
-        <PickerItem 
+        <PickerItem
           currencies={currencies}
           currencySelected={currencySelected}
-          onChange={(currency) => {
+          onChange={currency => {
             setCurrencySelected(currency);
           }}
         />
       </View>
+
+      <View style={styles.valueArea}>
+        <Text style={styles.title}>Digite um valor para converter em (R$)</Text>
+        <TextInput
+          placeholder="Ex: 1.50"
+          style={styles.input}
+          keyboardType="numeric"
+        />
+      </View>
+
+      <TouchableOpacity style={styles.buttonArea}>
+        <Text style={styles.buttonText}>Converter</Text>
+      </TouchableOpacity>
+
     </View>
-
-
-);
+  );
 }
 
 const styles = StyleSheet.create({
@@ -64,15 +82,16 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     alignItems: 'center',
   },
-  currencyArea:{
+  currencyArea: {
     backgroundColor: '#F9F9F9',
     width: '90%',
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
-    padding: 8
+    padding: 8,
+    marginBottom: 1,
   },
   title: {
-    fontSize:  16,
+    fontSize: 16,
     color: '#000',
     fontWeight: '500',
     paddingLeft: 5,
@@ -83,5 +102,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#101215',
+  },
+  valueArea: {
+    width: '90%',
+    backgroundColor: '#F9F9F9',
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  input: {
+    width: '100%',
+    padding: 8,
+    fontSize: 18,
+    color: '#000',
+  },
+  buttonArea: {
+    width: '90%',
+    backgroundColor: '#fb4b57',
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  buttonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16
   }
 });
