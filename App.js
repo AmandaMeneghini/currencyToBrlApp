@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   TextInput,
   TouchableOpacity,
+  Keyboard
 } from 'react-native';
 import {PickerItem} from './src/components/Picker';
 import {api} from './src/services/api';
@@ -49,11 +50,9 @@ export default function App() {
 
     let result = (Number(response.data[currencySelected]?.ask) * parseFloat(currencyBValue));
 
-    setValueConverted(`${result}`)
+    setValueConverted(`${result.toLocaleString("pt-BR", {style: "currency", currency: "BRL"})}`)
     setCurrencyValue(currencyBValue)
-    
-    console.log(result);
-    
+    Keyboard.dismiss();
   }
 
   if (loading) {
