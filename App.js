@@ -83,7 +83,7 @@ export default function App() {
           style={styles.input}
           keyboardType="numeric"
           value={currencyBValue}
-          onChange={event => setCurrencyBValue(event.nativeEvent.text)}
+          onChangeText={(value) => setCurrencyBValue(value)}
         />
       </View>
 
