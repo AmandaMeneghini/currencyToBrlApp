@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
 import { PickerItem } from './src/components/Picker';
 import { api } from './src/services/api'
 
 export default function App() {
   const [currencies, setCurrencies] = useState([])
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadCurrencies(){
@@ -20,11 +21,21 @@ export default function App() {
       })
 
       setCurrencies(arrayCurrencies);
+      setLoading(false);
+      console.log(response.data);
       
     }
 
     loadCurrencies();
   }, [])
+
+  if(loading){
+    return(
+      <View style={styles.loading}>
+        <ActivityIndicator color="#FFF" size="large" />
+      </View>
+    )
+  }
 
   return (
     <View style={styles.container}>
@@ -58,5 +69,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     paddingLeft: 5,
     paddingTop: 5,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#101215',
   }
 });
